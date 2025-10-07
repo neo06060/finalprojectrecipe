@@ -9,7 +9,31 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-// 🟢 Public: View image by ID
+// 🟢 Public: Get ALL images with recipeName + author + id
+router.get('/image', async (_req, res) => {
+  try {
+    const images = await RecipeImage.find({}, 'recipeName author _id');
+
+    res.json({
+      success: true,
+      count: images.length,
+      data: images.map(img => ({
+        id: img._id,
+        recipeName: img.recipeName,
+        author: img.author
+      }))
+    });
+  } catch (err) {
+    console.error('Error fetching images:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error',
+      error: err.message
+    });
+  }
+});
+
+// 🟢 Public: View single image by ID
 router.get('/image/:id', async (req, res) => {
   try {
     const recipeImage = await RecipeImage.findById(req.params.id);
@@ -21,15 +45,16 @@ router.get('/image/:id', async (req, res) => {
     res.set('Content-Type', recipeImage.image.contentType);
     res.send(recipeImage.image.data);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error retrieving image' });
   }
 });
 
-// 🔐 Private: Upload new image (must be logged in)
+// 🔐 Private: Upload new image
 router.post('/image', authenticateJWT, upload.single('image'), async (req, res) => {
   try {
     const { recipeName } = req.body;
-    const author = req.user.username; // from JWT
+    const author = req.user.username;
 
     if (!recipeName || !req.file) {
       return res.status(400).json({ error: 'recipeName and image are required' });
@@ -55,28 +80,21 @@ router.post('/image', authenticateJWT, upload.single('image'), async (req, res) 
   }
 });
 
-// 🔐 Private: Edit image (must be logged in + author)
+// 🔐 Private: Edit image (must be owner)
 router.put('/image/:id', authenticateJWT, upload.single('image'), async (req, res) => {
   try {
     const recipeImage = await RecipeImage.findById(req.params.id);
 
-    if (!recipeImage) {
-      return res.status(404).json({ error: 'Image not found' });
-    }
-
-    // Check ownership
-    if (recipeImage.author !== req.user.username) {
+    if (!recipeImage) return res.status(404).json({ error: 'Image not found' });
+    if (recipeImage.author !== req.user.username)
       return res.status(403).json({ error: 'You are not the owner of this image' });
-    }
 
     if (req.file) {
       recipeImage.image.data = req.file.buffer;
       recipeImage.image.contentType = req.file.mimetype;
     }
 
-    if (req.body.recipeName) {
-      recipeImage.recipeName = req.body.recipeName;
-    }
+    if (req.body.recipeName) recipeImage.recipeName = req.body.recipeName;
 
     await recipeImage.save();
     res.json({ message: 'Image updated successfully' });
@@ -86,19 +104,14 @@ router.put('/image/:id', authenticateJWT, upload.single('image'), async (req, re
   }
 });
 
-// 🔐 Private: Delete image (must be logged in + author)
+// 🔐 Private: Delete image (must be owner)
 router.delete('/image/:id', authenticateJWT, async (req, res) => {
   try {
     const recipeImage = await RecipeImage.findById(req.params.id);
 
-    if (!recipeImage) {
-      return res.status(404).json({ error: 'Image not found' });
-    }
-
-    // Check ownership
-    if (recipeImage.author !== req.user.username) {
+    if (!recipeImage) return res.status(404).json({ error: 'Image not found' });
+    if (recipeImage.author !== req.user.username)
       return res.status(403).json({ error: 'You are not the owner of this image' });
-    }
 
     await RecipeImage.findByIdAndDelete(req.params.id);
     res.json({ message: 'Image deleted successfully' });

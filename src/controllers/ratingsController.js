@@ -1,13 +1,17 @@
 const Rating = require('../models/Ratings');
 const Recipe = require('../models/Recipes');
 
-// ✅ Get all ratings (with recipe name + chef)
-exports.getAllRatings = async (req, res) => {
+// ✅ Get all ratings for a specific recipe (with recipe name + chef)
+exports.getRatingsByRecipe = async (req, res) => {
   try {
-    const ratings = await Rating.find().populate({
+    const recipeId = req.params.id;
+
+    // Filtramos ratings por receta
+    const ratings = await Rating.find({ recipe: recipeId }).populate({
       path: 'recipe',
       select: 'recipeName username'
     });
+
     res.json({ success: true, count: ratings.length, data: ratings });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error });

@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 8080;
 app.use(express.json());
 app.use(cors());
 
-// Conexión a MongoDB
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -20,27 +20,33 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('✅ Connected to MongoDB'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Importar rutas
+// Import routes
 const userRoutes = require('./src/routes/user');
 const recipeRoutes = require('./src/routes/recipe');
 const ratingRoutes = require('./src/routes/rating');
 const recipeImageRoutes = require('./src/routes/recipeImage');
 
-// Rutas de la API
+// API Routes
 app.use('/user', userRoutes);
-app.use('/recipe', recipeRoutes);
-app.use('/recipe/:id/rating', ratingRoutes);
-app.use('/recipe', recipeImageRoutes);
+app.use('/recipe', recipeRoutes); // for /recipe and /recipe/:id etc.
+app.use('/recipe-image', recipeImageRoutes); // includes /recipe/images and /recipe/image/:id
+app.use('/recipe/:id/rating', ratingRoutes); // keep this last since it's nested
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// Ruta raíz
+// Root route
 app.get('/', (req, res) => {
   res.send('🍳 Welcome to the Recipe App API!');
 });
 
-// Iniciar servidor
+// Error handling (optional)
+app.use((err, req, res, next) => {
+  console.error('💥 Global Error:', err);
+  res.status(500).json({ success: false, message: 'Internal server error' });
+});
+
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

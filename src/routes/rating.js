@@ -6,7 +6,10 @@ const { createRatingSchema, updateRatingSchema } = require('../validators/rating
 const authenticateJWT = require('../middleware/authenticateJWT');
 
 // Public routes
-router.get('/', ratingController.getAllRatings);
+// GET /recipe/:id/rating
+router.get('/', ratingController.getRatingsByRecipe);
+
+// GET /rating/:id
 router.get('/:id', ratingController.getRating);
 
 // Protected routes (auth required)

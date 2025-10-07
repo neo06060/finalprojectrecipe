@@ -3,9 +3,11 @@ const passport = require('passport');
 const User = require('../models/User');
 
 // Mount routes
-router.use('/books', require('./recipe'));
-router.use('/reviews', require('./rating'));
+router.use('/recipe', require('./recipe')); 
+router.use('/rating', require('./rating'));
 router.use('/auth', require('./auth'));
+router.use('/image', require('./recipeImages')); 
+
 
 // GitHub OAuth
 router.get('/login', passport.authenticate('github'));
