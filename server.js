@@ -28,9 +28,9 @@ const recipeImageRoutes = require('./src/routes/recipeImage');
 
 // API Routes
 app.use('/user', userRoutes);
-app.use('/recipe', recipeRoutes); // for /recipe and /recipe/:id etc.
-app.use('/recipe-image', recipeImageRoutes); // includes /recipe/images and /recipe/image/:id
-app.use('/recipe/:id/rating', ratingRoutes); // keep this last since it's nested
+app.use('/recipe', recipeRoutes);
+app.use('/recipe', recipeImageRoutes);
+app.use('/recipe/:id/rating', ratingRoutes);
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
