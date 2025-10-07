@@ -9,6 +9,18 @@
     { "url": "http://localhost:8080", "description": "Local HTTP" },
     { "url": "https://finalprojectrecipe.onrender.com", "description": "Production HTTPS" }
   ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    { "bearerAuth": [] }
+  ],
   "tags": [
     { "name": "User", "description": "User registration and authentication" },
     { "name": "Recipe", "description": "Recipe management (author-based)" },
