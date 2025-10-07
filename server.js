@@ -18,8 +18,8 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 const userRoutes = require('./src/routes/user');
-const recipeRoutes = require('./src/routes/recipes');
-const ratingRoutes = require('./src/routes/ratings');
+const recipeRoutes = require('./src/routes/recipe');
+const ratingRoutes = require('./src/routes/rating');
 
 app.use('/user', userRoutes);
 app.use('/recipe', recipeRoutes);

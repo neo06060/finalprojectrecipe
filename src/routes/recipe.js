@@ -7,7 +7,7 @@ const authenticateJWT = require('../middleware/authenticateJWT');
 
 // Public routes
 router.get('/', recipeController.getAllRecipes);
-router.get('/:id', recipeController.getRecipes);
+router.get('/:id', recipeController.getRecipeById);
 
 // Protected routes
 router.post('/', authenticateJWT, validate(createRecipeSchema), recipeController.createRecipe);
