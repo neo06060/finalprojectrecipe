@@ -5,7 +5,10 @@
     "version": "1.1.0",
     "description": "API for recipes, ratings, and images with JWT-based authentication. Recipes automatically store the logged-in user's username as the author."
   },
-  "servers": [{ "url": "http://localhost:8080" }],
+"servers": [
+  { "url": "http://localhost:8080", "description": "Local HTTP" },
+  { "url": "https://finalprojectrecipe.onrender.com", "description": "Production HTTPS" }
+],
   "tags": [
     { "name": "User", "description": "User registration and authentication" },
     { "name": "Recipe", "description": "Recipe management (author-based)" },
