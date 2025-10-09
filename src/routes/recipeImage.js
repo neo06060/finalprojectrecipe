@@ -5,35 +5,80 @@ const authenticateJWT = require('../middleware/authenticateJWT');
 
 const router = express.Router();
 
-// Store images in memory
+// Multer memory storage
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-
-// 🟢 Public: Get ALL images with recipeName + author + id
-router.get('/image', async (_req, res) => {
+/**
+ * 🟢 GET /recipe/:recipeId/images
+ * Get all images id for a specific recipe
+ */
+router.get('/:recipeId/images', async (req, res) => {
   try {
-    const images = await RecipeImage.find({}, 'recipeName author _id');
+    const { recipeId } = req.params;
 
+    // Find all images for this recipe
+    const images = await RecipeImage.find({ recipeId });
+
+    if (!images.length) {
+      return res.status(404).json({ message: 'No images found for this recipe' });
+    }
+
+    // Return metadata + URLs for each image
     res.json({
       success: true,
       count: images.length,
       data: images.map(img => ({
         id: img._id,
-        recipeName: img.recipeName,
-        author: img.author
+        recipeId: img.recipeId,
+        author: img.author,
+        url: `/recipe/image/${img._id}` // URL to view the actual image
       }))
     });
   } catch (err) {
     console.error('Error fetching images:', err);
-    res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: err.message
-    });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// 🟢 Public: View single image by ID
+
+/**
+ * 🔐 POST /recipe/:recipeId/image
+ * Upload new image for a specific recipe
+ */
+router.post('/:recipeId/image', authenticateJWT, upload.single('image'), async (req, res) => {
+  try {
+    const { recipeId } = req.params;
+    const author = req.user.username;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image file is required' });
+    }
+
+    const newImage = new RecipeImage({
+      author,
+      recipeId,
+      image: {
+        data: req.file.buffer,
+        contentType: req.file.mimetype
+      }
+    });
+
+    await newImage.save();
+
+    res.status(201).json({
+      message: 'Recipe image uploaded successfully',
+      imageId: newImage._id
+    });
+  } catch (err) {
+    console.error('Error uploading image:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * 🟢 GET /image/:id
+ * View single image by ID (public)
+ */
 router.get('/image/:id', async (req, res) => {
   try {
     const recipeImage = await RecipeImage.findById(req.params.id);
@@ -45,78 +90,56 @@ router.get('/image/:id', async (req, res) => {
     res.set('Content-Type', recipeImage.image.contentType);
     res.send(recipeImage.image.data);
   } catch (err) {
-    console.error(err);
+    console.error('Error retrieving image:', err);
     res.status(500).json({ error: 'Error retrieving image' });
   }
 });
 
-// 🔐 Private: Upload new image
-router.post('/image', authenticateJWT, upload.single('image'), async (req, res) => {
-  try {
-    const { recipeName } = req.body;
-    const author = req.user.username;
-
-    if (!recipeName || !req.file) {
-      return res.status(400).json({ error: 'recipeName and image are required' });
-    }
-
-    const newImage = new RecipeImage({
-      author,
-      recipeName,
-      image: {
-        data: req.file.buffer,
-        contentType: req.file.mimetype
-      }
-    });
-
-    await newImage.save();
-    res.status(201).json({
-      message: 'Recipe image uploaded successfully',
-      imageId: newImage._id
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// 🔐 Private: Edit image (must be owner)
+/**
+ * 🔐 PUT /image/:id
+ * Update image (must be owner)
+ */
 router.put('/image/:id', authenticateJWT, upload.single('image'), async (req, res) => {
   try {
     const recipeImage = await RecipeImage.findById(req.params.id);
 
     if (!recipeImage) return res.status(404).json({ error: 'Image not found' });
-    if (recipeImage.author !== req.user.username)
+    if (recipeImage.author !== req.user.username) {
       return res.status(403).json({ error: 'You are not the owner of this image' });
+    }
 
     if (req.file) {
       recipeImage.image.data = req.file.buffer;
       recipeImage.image.contentType = req.file.mimetype;
     }
 
-    if (req.body.recipeName) recipeImage.recipeName = req.body.recipeName;
+    if (req.body.recipeId) recipeImage.recipeId = req.body.recipeId;
 
     await recipeImage.save();
     res.json({ message: 'Image updated successfully' });
   } catch (err) {
-    console.error(err);
+    console.error('Error updating image:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// 🔐 Private: Delete image (must be owner)
+/**
+ * 🔐 DELETE /image/:id
+ * Delete image (must be owner)
+ */
 router.delete('/image/:id', authenticateJWT, async (req, res) => {
   try {
     const recipeImage = await RecipeImage.findById(req.params.id);
 
     if (!recipeImage) return res.status(404).json({ error: 'Image not found' });
-    if (recipeImage.author !== req.user.username)
+    if (recipeImage.author !== req.user.username) {
       return res.status(403).json({ error: 'You are not the owner of this image' });
+    }
 
     await RecipeImage.findByIdAndDelete(req.params.id);
     res.json({ message: 'Image deleted successfully' });
   } catch (err) {
-    console.error(err);
+    console.error('Error deleting image:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

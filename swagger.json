@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Recipe App API",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "API for recipes, ratings, and images with JWT-based authentication. Recipes automatically store the logged-in user's username as the author."
   },
   "servers": [
@@ -11,16 +11,10 @@
   ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
     }
   },
-  "security": [
-    { "bearerAuth": [] }
-  ],
+  "security": [{ "bearerAuth": [] }],
   "tags": [
     { "name": "User", "description": "User registration and authentication" },
     { "name": "Recipe", "description": "Recipe management (author-based)" },
@@ -47,7 +41,10 @@
             }
           }
         },
-        "responses": { "201": { "description": "User registered successfully" }, "400": { "description": "Bad request" } }
+        "responses": {
+          "201": { "description": "User registered successfully" },
+          "400": { "description": "Bad request" }
+        }
       }
     },
     "/user/login": {
@@ -60,13 +57,19 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": { "username": { "type": "string" }, "password": { "type": "string" } },
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
                 "required": ["username", "password"]
               }
             }
           }
         },
-        "responses": { "200": { "description": "Login successful, JWT returned" }, "401": { "description": "Invalid credentials" } }
+        "responses": {
+          "200": { "description": "Login successful, JWT returned" },
+          "401": { "description": "Invalid credentials" }
+        }
       }
     },
     "/user/profile": {
@@ -74,11 +77,18 @@
         "summary": "Get logged-in user's profile",
         "tags": ["User"],
         "security": [{ "bearerAuth": [] }],
-        "responses": { "200": { "description": "Profile data" }, "401": { "description": "Unauthorized" } }
+        "responses": {
+          "200": { "description": "Profile data" },
+          "401": { "description": "Unauthorized" }
+        }
       }
     },
     "/recipe": {
-      "get": { "summary": "Get all recipes", "tags": ["Recipe"], "responses": { "200": { "description": "List of all recipes" } } },
+      "get": {
+        "summary": "Get all recipes",
+        "tags": ["Recipe"],
+        "responses": { "200": { "description": "List of all recipes" } }
+      },
       "post": {
         "summary": "Create a new recipe (auth required)",
         "tags": ["Recipe"],
@@ -100,21 +110,31 @@
             }
           }
         },
-        "responses": { "201": { "description": "Recipe created successfully" }, "401": { "description": "Unauthorized" } }
+        "responses": {
+          "201": { "description": "Recipe created successfully" },
+          "401": { "description": "Unauthorized" }
+        }
       }
     },
     "/recipe/{id}": {
       "get": {
         "summary": "Get recipe by ID",
         "tags": ["Recipe"],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "responses": { "200": { "description": "Recipe details returned" }, "404": { "description": "Recipe not found" } }
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Recipe details returned" },
+          "404": { "description": "Recipe not found" }
+        }
       },
       "put": {
         "summary": "Update recipe (auth + owner only)",
         "tags": ["Recipe"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -130,44 +150,141 @@
             }
           }
         },
-        "responses": { "200": { "description": "Recipe updated successfully" }, "403": { "description": "Forbidden: not owner" }, "404": { "description": "Not found" } }
+        "responses": {
+          "200": { "description": "Recipe updated successfully" },
+          "403": { "description": "Forbidden: not owner" },
+          "404": { "description": "Not found" }
+        }
       },
       "delete": {
         "summary": "Delete recipe (auth + owner only)",
         "tags": ["Recipe"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "responses": { "200": { "description": "Recipe deleted successfully" }, "403": { "description": "Forbidden: not owner" }, "404": { "description": "Not found" } }
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Recipe deleted successfully" },
+          "403": { "description": "Forbidden: not owner" },
+          "404": { "description": "Not found" }
+        }
       }
     },
     "/recipe/{id}/rating": {
-      "get": { "summary": "Get all ratings for a recipe", "tags": ["Rating"], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Ratings retrieved" } } },
-      "post": { "summary": "Add rating to recipe (auth required)", "tags": ["Rating"], "security": [{ "bearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "properties": { "rating": { "type": "integer" }, "comment": { "type": "string" } }, "required": ["rating"] } } } }, "responses": { "201": { "description": "Rating added successfully" }, "401": { "description": "Unauthorized" } } }
+      "get": {
+        "summary": "Get all ratings for a recipe",
+        "tags": ["Rating"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Ratings retrieved" } }
+      },
+      "post": {
+        "summary": "Add rating to recipe (auth required)",
+        "tags": ["Rating"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": { "type": "integer" },
+                  "comment": { "type": "string" }
+                },
+                "required": ["rating"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Rating added successfully" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
     },
     "/rating/{id}": {
-      "put": { "summary": "Update rating (auth + owner only)", "tags": ["Rating"], "security": [{ "bearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "requestBody": { "content": { "application/json": { "schema": { "type": "object", "properties": { "rating": { "type": "integer" }, "comment": { "type": "string" } } } } } }, "responses": { "200": { "description": "Rating updated" }, "403": { "description": "Forbidden" } } },
-      "delete": { "summary": "Delete rating (auth + owner only)", "tags": ["Rating"], "security": [{ "bearerAuth": [] }], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Rating deleted" }, "403": { "description": "Forbidden" } } }
+      "put": {
+        "summary": "Update rating (auth + owner only)",
+        "tags": ["Rating"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rating": { "type": "integer" },
+                  "comment": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Rating updated" },
+          "403": { "description": "Forbidden" }
+        }
+      },
+      "delete": {
+        "summary": "Delete rating (auth + owner only)",
+        "tags": ["Rating"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Rating deleted" },
+          "403": { "description": "Forbidden" }
+        }
+      }
     },
-    "/recipe/image": {
-      "post": { "summary": "Upload recipe image (auth required)", "tags": ["Recipe Image"], "security": [{ "bearerAuth": [] }], "requestBody": { "required": true, "content": { "multipart/form-data": { "schema": { "type": "object", "properties": { "recipeName": { "type": "string" }, "image": { "type": "string", "format": "binary" } }, "required": ["recipeName","image"] } } } }, "responses": { "201": { "description": "Image uploaded successfully" }, "401": { "description": "Unauthorized" } } }
+    "/recipe/{recipeId}/images": {
+      "get": {
+        "summary": "Get all image IDs for a specific recipe",
+        "tags": ["Recipe Image"],
+        "parameters": [
+          { "name": "recipeId", "in": "path", "required": true, "schema": { "type": "string" }, "description": "The ID of the recipe" }
+        ],
+        "responses": {
+          "200": { "description": "List of image IDs" },
+          "404": { "description": "Recipe not found" }
+        }
+      }
     },
     "/recipe/image/{id}": {
-      "get": { "summary": "Get recipe image by ID", "tags": ["Recipe Image"], "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }], "responses": { "200": { "description": "Image returned" }, "404": { "description": "Not found" } } },
-            "put": {
-        "summary": "Update recipe image (auth + owner only)",
+      "get": {
+        "summary": "Get a single image by ID",
+        "tags": ["Recipe Image"],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Image returned" },
+          "404": { "description": "Image not found" }
+        }
+      },
+      "put": {
+        "summary": "Update image (auth + owner only)",
         "tags": ["Recipe Image"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "requestBody": {
           "required": false,
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "recipeName": { "type": "string" },
-                  "image": { "type": "string", "format": "binary" }
-                }
+                "properties": { "image": { "type": "string", "format": "binary" } }
               }
             }
           }
@@ -178,16 +295,50 @@
         }
       },
       "delete": {
-        "summary": "Delete recipe image (auth + owner only)",
+        "summary": "Delete image (auth + owner only)",
         "tags": ["Recipe Image"],
         "security": [{ "bearerAuth": [] }],
-        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
         "responses": {
           "200": { "description": "Image deleted" },
           "403": { "description": "Forbidden" }
         }
       }
+    },
+    "/recipe/{recipeId}/image": {
+      "post": {
+        "summary": "Upload new image for a specific recipe (auth required)",
+        "tags": ["Recipe Image"],
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "recipeId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "The ID of the recipe to attach the image to"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": { "image": { "type": "string", "format": "binary" } },
+                "required": ["image"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Image uploaded successfully" },
+          "401": { "description": "Unauthorized" },
+          "404": { "description": "Recipe not found" }
+        }
+      }
     }
   }
 }
-

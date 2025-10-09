@@ -1,12 +1,11 @@
-// /src/models/RecipeImage.js
 const mongoose = require('mongoose');
 
 const recipeImageSchema = new mongoose.Schema({
   author: { type: String, required: true },
-  recipeName: { type: String, required: true },
+  recipeId: { type: String, required: true },
   image: {
-    data: Buffer,          
-    contentType: String   
+    data: Buffer,
+    contentType: String
   },
   createdAt: { type: Date, default: Date.now }
 });

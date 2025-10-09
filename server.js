@@ -31,6 +31,7 @@ app.use('/user', userRoutes);
 app.use('/recipe', recipeRoutes);
 app.use('/recipe', recipeImageRoutes);
 app.use('/recipe/:id/rating', ratingRoutes);
+app.use('/rating', ratingRoutes);
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
